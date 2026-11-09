@@ -1,5 +1,7 @@
 # StockConda `0.2.3.5.dev1` — draft developer release notes
 
+Historical planning snapshot from before publication. The current release description is on the GitHub Releases page.
+
 **Unreleased developer candidate. Source-only technical acceptance passed; publication requires separate user approval.**
 
 ## Intended scope

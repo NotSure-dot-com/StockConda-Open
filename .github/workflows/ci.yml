@@ -2,9 +2,9 @@ name: Correctness
 
 on:
   pull_request:
-    branches: [feature/optimizations]
+    branches: [main]
   push:
-    branches: [feature/optimizations]
+    branches: [main]
 
 permissions:
   contents: read

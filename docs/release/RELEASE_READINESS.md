@@ -1,5 +1,7 @@
 # Developer release readiness (2026-11-08)
 
+Historical acceptance snapshot for the source archive. Its statements about an unpublished candidate and the private development repository describe the situation on that date. This public repository starts from the reviewed history-free export, not from the private repository's history.
+
 Status: **GO for the history-free source-only developer candidate** after local technical and included-source review. Publication remains a separate user action; this document does not authorize a tag, package upload, repository visibility change, or installer.
 
 ## Proposed version and scope

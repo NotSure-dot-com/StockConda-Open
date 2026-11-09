@@ -1,4 +1,4 @@
-# Windows x64 Arena onedir candidate
+# Windows x64 Arena onedir build
 
 This is a local build recipe for a ZIP containing `StockConda/StockConda.exe`.
 After extraction, add that executable as a UCI engine in Arena. The target
@@ -17,14 +17,7 @@ in a new isolated virtual environment. The source export must come from the
 same committed tree as the accompanying source ZIP. Do not build this Windows
 artifact in the Linux container: PyInstaller does not cross-compile.
 
-From a clean source checkout, create the history-free source ZIP:
-
-```powershell
-python tools/create_release_export.py ..\windows-source-export
-python tools/make_release_zip.py ..\windows-source-export ..\StockConda-0.2.3.5.dev1-source.zip
-```
-
-Enter the extracted source export and use a Windows Python 3.12 x64 interpreter:
+For the published `v0.2.3.5.dev1` binary, download its matching source ZIP from the release page and extract it beside the ZIP. Enter the extracted `StockConda-0.2.3.5.dev1` directory. The release source manifest and ZIP must remain byte-for-byte identical; later documentation commits on `main` are not inputs to this reproduction recipe. Use a Windows Python 3.12 x64 interpreter:
 
 ```powershell
 py -3.12 -m venv ..\windows-build-venv
@@ -50,12 +43,11 @@ The final archive is `windows-build-output/StockConda-Windows-x64-onedir.zip`.
 Extract it, then point Arena to `StockConda/StockConda.exe`. Keep the source
 ZIP and license folder inside the extracted directory when sharing it.
 
-## Release acceptance still required
+## Additional release acceptance
 
-Before distributing the ZIP, inspect `BUILD_MANIFEST.json`, the collected
+The published developer pre-release passed local checks of `BUILD_MANIFEST.json`, the collected
 dependency license inventory, the full UCI trace, the three native `.pyd`
-modules in `_internal`, and the archive hashes. Test the extracted ZIP in a
-clean Windows x64 VM without Python or a compiler and in Arena itself. Check
+modules in `_internal`, and the archive hashes. Arena 3.5.1 registered and played with the engine. A clean Windows x64 VM check without Python or a compiler remains outstanding. For broader acceptance, check
 `uci`, `isready`, book enabled/disabled, `go`, `stop`, `quit`, EOF, startup from
 an unrelated working directory, and no network requirement. The scripted
 smoke is a local gate and does not replace those clean-machine checks. No Elo
