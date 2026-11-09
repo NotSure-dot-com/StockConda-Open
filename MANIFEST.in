@@ -1,0 +1,12 @@
+include opening_book.pkl
+include THIRD_PARTY_NOTICES.md
+recursive-include third_party/licenses *.txt
+recursive-include src/chess_engine *.pyx *.pxd *.pyi *.h *.cpp
+include pytest.ini
+include ci/requirements.txt
+include .github/workflows/ci.yml
+include docs/architecture/UCI_SEARCH_LIFECYCLE.md
+recursive-include docs/release *.md
+recursive-include tests *.py *.uci
+recursive-include scripts *.py *.sh
+recursive-include tools *.py

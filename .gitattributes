@@ -1,0 +1,2 @@
+# The AP-04B auditor binds the exact LF bytes of this policy.
+scripts/ap04b_runtime_policy.py text eol=lf
