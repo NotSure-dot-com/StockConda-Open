@@ -1,7 +1,9 @@
 {
-  "source_commit": "ffbf29567ebfeb8e8a1a5bcf52f82c1befe5b148",
-  "source_tree": "4f7d3829d93cc226cd9e449bf00bf041ce9d3ed0",
-  "file_count": 106,
+  "source_commit": "49b4a820a72fae9e8cb85bef5afe248c274b27a5",
+  "source_tree": "59deb2603279ca02a8f0a7c2da826533c1670be4",
+  "integrated_private_commit": "7f4e35a816ddfffaf72d2386b6a6ec32215bf3ed",
+  "public_base_commit": "904dbe8afbca639dc335cab6798e6c1d3da835ce",
+  "file_count": 113,
   "files": [
     {
       "path": ".gitattributes",
@@ -10,8 +12,8 @@
     },
     {
       "path": ".github/workflows/ci.yml",
-      "bytes": 2212,
-      "sha256": "10fec62df79b134b0c622846346317d07f154dc14f004c99a76ad4d9a1ae8b99"
+      "bytes": 2178,
+      "sha256": "6d51150d752a9a939a7269aee92ed7f029597456f97d8195dd28e5c2e243d71d"
     },
     {
       "path": "LICENSE",
@@ -20,18 +22,18 @@
     },
     {
       "path": "MANIFEST.in",
-      "bytes": 442,
-      "sha256": "bf687075ea67f63e24ce8d267c9ac0fc82b3644ecc7a6e2662e137bc04a46a09"
+      "bytes": 485,
+      "sha256": "26b35a03f6fb037e37a5980713df4fb57d0143cae2a0fb2c16a85ecbf4fff218"
     },
     {
       "path": "README.md",
-      "bytes": 4176,
-      "sha256": "6775de4708cb5d86d3732752937b15725b405c644b2da32f2441d106e1b2a843"
+      "bytes": 5320,
+      "sha256": "554ae33b6691ed8319d7225b8d3eacaf8fcbe103ac495001cb105b1086def72b"
     },
     {
       "path": "THIRD_PARTY_NOTICES.md",
-      "bytes": 4947,
-      "sha256": "50d5c5a5e95933ee53d0f331cb03b0c332f43855cf249d0faa2a4051fadfcea2"
+      "bytes": 5113,
+      "sha256": "bc129d10ef94266c834dff03424fc8cd4c7a54e1d15513eefccf3f90bb516046"
     },
     {
       "path": "ci/requirements.txt",
@@ -44,19 +46,24 @@
       "sha256": "3ffda2ecf6d038243b2e0283da83ac5cd103168e523c0ebbb83e389bf7277aa1"
     },
     {
+      "path": "docs/release/DEV2_RELEASE.md",
+      "bytes": 2235,
+      "sha256": "bf006aa7bfd1dbed57aed90c981860c678268cc6dd7a383e45872c00257ad4bb"
+    },
+    {
       "path": "docs/release/DEV_RELEASE_DRAFT.md",
-      "bytes": 2644,
-      "sha256": "3b312871574b0fbadcfde8f6c035c096f2267e984d9e8274647c9b43e47b1b28"
+      "bytes": 2765,
+      "sha256": "d8908fc75219bb32713872fc853a345ff423f334c894f5a9bb25b96445ad7082"
     },
     {
       "path": "docs/release/RELEASE_READINESS.md",
-      "bytes": 6858,
-      "sha256": "21a0ad925c118f77a1386945b4cc95bfec888aa513bfacc1811f3c47eb38976b"
+      "bytes": 7308,
+      "sha256": "87fc96ed7441fa2fa9874d052e5da813e1665d3a540467103797e122c1c9cd71"
     },
     {
       "path": "docs/release/WINDOWS_ONEDIR.md",
-      "bytes": 3554,
-      "sha256": "f2f576d83d51168f02c19e89782398d7dbcb766bf25aad0ae64ed0b09bd3921b"
+      "bytes": 3735,
+      "sha256": "f80d9a1ae926791a64f3e3a24be5bf0304bd430ac0cff17e970ac1fff9abfa6f"
     },
     {
       "path": "opening_book.pkl",
@@ -66,7 +73,7 @@
     {
       "path": "pyproject.toml",
       "bytes": 1017,
-      "sha256": "bac1c8083296956d7dba30650e669205ec3469a1e5c3536fa50d0178099c4674"
+      "sha256": "8f90f32a1b6d9ffbbedaf8b2736de8d2095a4af401643b252b00856cb310918a"
     },
     {
       "path": "pytest.ini",
@@ -160,8 +167,8 @@
     },
     {
       "path": "scripts/ap03_uci_audit.py",
-      "bytes": 2342,
-      "sha256": "1124cee6db250646fd8cb8d2f4d98390b16dc4eac5dff9f145acfd58898f4172"
+      "bytes": 2347,
+      "sha256": "7ad7e5219af126e6377c22a5094f46e218c4dd33eaca484b960f9c82f9922d02"
     },
     {
       "path": "scripts/ap03_uci_smoke.py",
@@ -240,8 +247,8 @@
     },
     {
       "path": "setup.py",
-      "bytes": 2549,
-      "sha256": "f9de796d250c5eaa034cd72bf91409ae81f80c812288723b84bfe135674b904b"
+      "bytes": 2607,
+      "sha256": "1f2e63605d38fe32d496e952dfb72e08374d3426b31e22a4a6230465656dcc82"
     },
     {
       "path": "src/chess_engine/__init__.py",
@@ -294,19 +301,24 @@
       "sha256": "d234414cb759cd3c6d99576c8cb4c997e9475b564f8c92f4fb3ca2a3cacc93d2"
     },
     {
+      "path": "src/chess_engine/opening_book.pkl",
+      "bytes": 2173157,
+      "sha256": "b0757080ac89c6d8d84d9691115e027ca2fa4b51ebf7808722621286d60b186f"
+    },
+    {
       "path": "src/chess_engine/opening_book.py",
-      "bytes": 35973,
-      "sha256": "99aa225d978b425816c2d29c3c4d01954301c6cade770044715dca3259a28c14"
+      "bytes": 36138,
+      "sha256": "7e8c0801c4bed46c4b180beefd2cc6c769cf4f0803f5e3d70e389024dfda881c"
     },
     {
       "path": "src/chess_engine/stockconda.py",
-      "bytes": 71975,
-      "sha256": "6668540e4c7f5db98cd2c753c488a392b9d25e18ceeaa9e62feb54b09d668bbc"
+      "bytes": 74382,
+      "sha256": "34a7d4fce236ae608c83c7736cdfdf16b3204f09fe62b204a44ebc7a73a4f5ff"
     },
     {
       "path": "src/chess_engine/uci_search_worker.py",
-      "bytes": 3797,
-      "sha256": "8622f852fd2dbb2982edd4c2ff0196bb7727600608a3cd1765ea7d028200ef5e"
+      "bytes": 5275,
+      "sha256": "75e6ddbd6ca54b9e02a404b945e2d2f3080a3e5076e2443240b48ca8581e50bd"
     },
     {
       "path": "tests/fixtures/history_depth_preflight.uci",
@@ -372,6 +384,21 @@
       "path": "tests/test_history_table_layout.py",
       "bytes": 2694,
       "sha256": "46ade9a5135e8ba9ba7d8b4335dd7ec5a825a2effedf59c0ae3a098f85de4995"
+    },
+    {
+      "path": "tests/test_maxdepth_default.py",
+      "bytes": 2722,
+      "sha256": "5e8735b8e3d97101ff5e21c4120f9fc6b60a0050fd2df70e58d0833bfe346117"
+    },
+    {
+      "path": "tests/test_ponder_engine.py",
+      "bytes": 4535,
+      "sha256": "bf02f4e8af37eab4963b9f9a2f4fabab03654541caaed381aed2e0aba5998ca0"
+    },
+    {
+      "path": "tests/test_ponder_worker.py",
+      "bytes": 4557,
+      "sha256": "4859945f8fe52ad939a35aa16213f3bc873330611fc1870740aa697892017dc8"
     },
     {
       "path": "tests/test_pvs_lazy_ordering.py",
@@ -465,18 +492,28 @@
     },
     {
       "path": "tests/test_uci_book.py",
-      "bytes": 11850,
-      "sha256": "4d310a10c937b8af117fb6e04ec86765fa226239df2b3fac828a13f4167d8f9b"
+      "bytes": 14538,
+      "sha256": "b24664611aada031ac14722881e773cecaa43649fe5a861198e6656b48573af9"
     },
     {
       "path": "tests/test_uci_combined_deadlines.py",
-      "bytes": 4241,
-      "sha256": "0aec8199db05d8a5df4cd4ca608333f815897bec218ac93b1fdd84e4591d3c2e"
+      "bytes": 4980,
+      "sha256": "5cd6430b3e6c29e314de4a5d7a593b22c061f4751073235edeb0de2679bdb0fc"
     },
     {
       "path": "tests/test_uci_harness.py",
       "bytes": 2796,
       "sha256": "4cf261ac41bc88468a4267667ed6ab1842c160b897c5d43ee1545a2ff377b9ae"
+    },
+    {
+      "path": "tests/test_uci_mate_score.py",
+      "bytes": 1285,
+      "sha256": "56e95161ba8f86fef9d6850a79bd5d2f30479d27d061e594cf7ff55e801678e8"
+    },
+    {
+      "path": "tests/test_uci_ponder.py",
+      "bytes": 3193,
+      "sha256": "80ea026261a3f85ef5cb970c0329ceeb2825827f5a06303b9c7d603d5f25727f"
     },
     {
       "path": "tests/test_uci_search_worker.py",
@@ -521,7 +558,7 @@
     {
       "path": "tools/make_release_zip.py",
       "bytes": 1878,
-      "sha256": "d340b601adf3a9ac416b59b26e3fd0d0558e180800e149d7e9a4d671c1bbf02f"
+      "sha256": "7d62419bf01df92f17cb312a67a44b14bf201c9e5e1737ca4614870b7f2b527c"
     },
     {
       "path": "tools/tt_history_controls.py",
