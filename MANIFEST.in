@@ -1,4 +1,5 @@
 include opening_book.pkl
+include src/chess_engine/opening_book.pkl
 include THIRD_PARTY_NOTICES.md
 recursive-include third_party/licenses *.txt
 recursive-include src/chess_engine *.pyx *.pxd *.pyi *.h *.cpp

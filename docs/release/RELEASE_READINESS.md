@@ -2,6 +2,8 @@
 
 Historical acceptance snapshot for the source archive. Its statements about an unpublished candidate and the private development repository describe the situation on that date. This public repository starts from the reviewed history-free export, not from the private repository's history.
 
+The current `v0.2.3.5.dev2` release assessment is in [DEV2_RELEASE.md](DEV2_RELEASE.md); the `dev1` counts and publication checklist below are historical.
+
 Status: **GO for the history-free source-only developer candidate** after local technical and included-source review. Publication remains a separate user action; this document does not authorize a tag, package upload, repository visibility change, or installer.
 
 ## Proposed version and scope

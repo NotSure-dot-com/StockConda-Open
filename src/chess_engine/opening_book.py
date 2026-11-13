@@ -755,7 +755,7 @@ _OPENING_BOOK_LOCK = threading.Lock()
 
 def load_opening_book() -> Optional[OpeningBook]:
     """
-    Try to load the bundled opening book from the source-tree root.
+    Try the source-tree book, then the identical package copy used by wheels.
     
     This function caches the loaded book in memory to avoid reloading it
     on subsequent calls.
@@ -780,7 +780,9 @@ def load_opening_book() -> Optional[OpeningBook]:
             os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
             'opening_book.pkl',
         )
-        possible_paths = [bundled_book]
+        packaged_book = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                     'opening_book.pkl')
+        possible_paths = [bundled_book, packaged_book]
         
         # Print search paths for debugging - using ASCII characters only for Windows compatibility
         logger.debug("\nSearching for opening book in the following locations:")

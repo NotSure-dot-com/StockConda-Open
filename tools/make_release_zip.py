@@ -30,7 +30,7 @@ def main() -> None:
     output.parent.mkdir(parents=True, exist_ok=True)
     with ZipFile(output, "w", compression=ZIP_DEFLATED, compresslevel=9) as archive:
         for relative in sorted(actual):
-            info = ZipInfo("StockConda-0.2.3.5.dev1/" + relative, (1980, 1, 1, 0, 0, 0))
+            info = ZipInfo("StockConda-0.2.3.5.dev2/" + relative, (1980, 1, 1, 0, 0, 0))
             info.create_system = 3
             info.external_attr = 0o100644 << 16
             info.compress_type = ZIP_DEFLATED

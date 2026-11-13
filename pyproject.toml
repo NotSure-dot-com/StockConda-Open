@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "chess_engine"
-version = "0.2.3.5.dev1"
+version = "0.2.3.5.dev2"
 description = "A UCI chess engine with Cython extensions"
 license = "GPL-3.0-only AND CC0-1.0"
 license-files = ["LICENSE", "THIRD_PARTY_NOTICES.md", "third_party/licenses/*.txt"]

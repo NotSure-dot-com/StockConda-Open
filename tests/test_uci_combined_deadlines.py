@@ -123,3 +123,24 @@ def test_uci_zero_budget_keeps_worker_usable_and_terminal_move_legal():
         session.finish()
     finally:
         session.close()
+
+
+@pytest.mark.parametrize('command', [
+    'go ponder depth 64 movetime 50',
+    'go ponder depth 64 wtime 1000 btime 1000',
+])
+def test_ponderhit_arms_composed_deadline(command):
+    session = UciSession()
+    try:
+        session.handshake()
+        board = chess.Board()
+        session.position(board)
+        start = session.go(board, command)
+        time.sleep(0.15)
+        assert not any(channel == 'stdout' and line.startswith('bestmove ')
+                       for _, channel, line in session.events[start:]), session.transcript()
+        hit = session.send('ponderhit')
+        session.wait(lambda line: line.startswith('bestmove '), hit, 2)
+        session.finish()
+    finally:
+        session.close()
