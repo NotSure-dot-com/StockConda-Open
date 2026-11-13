@@ -16,7 +16,7 @@ def audit(events: Iterable[tuple[str, str]]) -> None:
             continue
         seen += 1
         # Identified legacy prologue/epilogue, not UCI protocol messages.
-        if line in {'StockConda v0.2.3.5.dev2 by Real', 'bye'}:
+        if line in {'StockConda v0.2.3.5 by Real', 'bye'}:
             continue
         assert not re.search(r'error|traceback|illegal|unavailable|exception', line, re.I), line
         assert re.fullmatch(
