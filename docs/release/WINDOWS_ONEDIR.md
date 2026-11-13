@@ -17,13 +17,13 @@ in a new isolated virtual environment. The source export must come from the
 same committed tree as the accompanying source ZIP. Do not build this Windows
 artifact in the Linux container: PyInstaller does not cross-compile.
 
-For the published `v0.2.3.5.dev1` binary, download its matching source ZIP from the release page and extract it beside the ZIP. Enter the extracted `StockConda-0.2.3.5.dev1` directory. The release source manifest and ZIP must remain byte-for-byte identical; later documentation commits on `main` are not inputs to this reproduction recipe. Use a Windows Python 3.12 x64 interpreter:
+For `v0.2.3.5.dev2`, download its matching source ZIP from the release page and extract it beside the ZIP. Enter the extracted `StockConda-0.2.3.5.dev2` directory. The release source manifest and ZIP must remain byte-for-byte identical; later documentation commits on `main` are not inputs to this reproduction recipe. Use a Windows Python 3.12 x64 interpreter:
 
 ```powershell
 py -3.12 -m venv ..\windows-build-venv
 ..\windows-build-venv\Scripts\python.exe -m pip install -e . "pyinstaller==6.22.3"
 $msvcNotices = 'C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\Licenses\1033'
-..\windows-build-venv\Scripts\python.exe scripts\build_windows_onedir.py --source-zip ..\StockConda-0.2.3.5.dev1-source.zip --msvc-notices $msvcNotices --output ..\windows-build-output
+..\windows-build-venv\Scripts\python.exe scripts\build_windows_onedir.py --source-zip ..\StockConda-0.2.3.5.dev2-source.zip --msvc-notices $msvcNotices --output ..\windows-build-output
 ```
 
 `pip install -e .` compiles the three Cython extensions in the export. The
@@ -45,9 +45,9 @@ ZIP and license folder inside the extracted directory when sharing it.
 
 ## Additional release acceptance
 
-The published developer pre-release passed local checks of `BUILD_MANIFEST.json`, the collected
+The previous `dev1` prerelease passed local checks of `BUILD_MANIFEST.json`, the collected
 dependency license inventory, the full UCI trace, the three native `.pyd`
-modules in `_internal`, and the archive hashes. Arena 3.5.1 registered and played with the engine. A clean Windows x64 VM check without Python or a compiler remains outstanding. For broader acceptance, check
+modules in `_internal`, and the archive hashes. Arena 3.5.1 registered and played with that earlier build. The `dev2` automated result is recorded in its [release notes](DEV2_RELEASE.md). A clean Windows x64 VM check without Python or a compiler remains outstanding. For broader acceptance, check
 `uci`, `isready`, book enabled/disabled, `go`, `stop`, `quit`, EOF, startup from
 an unrelated working directory, and no network requirement. The scripted
 smoke is a local gate and does not replace those clean-machine checks. No Elo

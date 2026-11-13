@@ -254,10 +254,15 @@ class UCIEngine:
         self.tt_size_bytes = 16 * 1024 * 1024
         self.use_opening_book = False
         self.opening_book = None
+        if self.use_opening_book:
+            self.opening_book = load_opening_book()
         self.use_transposition_table = True
         self._tt_freed = False
         self._shutdown_started = False
         self._active_cancel: threading.Event | None = None
+        self._active_task: SearchTask | None = None
+        self.ponder_enabled = False
+        self._ponder_clock_armed = False
         if self.use_transposition_table:
             init_cython_tt(self.tt_size_bytes)
             atexit.register(self._shutdown)
@@ -268,12 +273,13 @@ class UCIEngine:
         self.killer_moves: list[list[chess.Move | None]] = [[None, None] for _ in range(self.MAX_LMR_DEPTH)]
         self.time_manager = TimeManager()
         self.max_search_depth = self.MAX_LMR_DEPTH # Default maximum search depth for performance stability
-        self.max_depth_limit: int | None = None # UCI MaxDepth option
+        self.max_depth_limit: int | None = self.MAX_LMR_DEPTH # UCI MaxDepth option
 
         # --- State for sophisticated stop_flag_check ---
         self._stop_check_counter = 0
         self._stop_check_threshold = 1 # Initial threshold
         self._search_start_time: float = 0.0 # Monotonic seconds; initialized per search
+        self._search_info_start_time: float = 0.0 # Total ponder + normal search duration
         self._search_time_limit: float | None = None # To be set in start_search
         self._last_time_check_time: float = 0.0 # To track when the last actual time check happened
 
@@ -299,6 +305,7 @@ class UCIEngine:
 
     def _execute_uci_task(self, task: SearchTask) -> None:
         self._active_cancel = task.cancelled
+        self._active_task = task
         self.stop_flag = False
         self.searching = True
         try:
@@ -307,6 +314,7 @@ class UCIEngine:
         finally:
             self.searching = False
             self._active_cancel = None
+            self._active_task = None
 
     def _cancel_requested(self) -> bool:
         event = getattr(self, "_active_cancel", None)
@@ -325,7 +333,16 @@ class UCIEngine:
         self._stop_check_counter = 0
         self._stop_check_threshold = 1
         self._search_start_time = time.monotonic()
-        self._search_time_limit = time_limit
+        self._search_info_start_time = self._search_start_time
+        task = self._active_task
+        hit_at = task.hit_at if task is not None and task.ponder else None
+        self._ponder_clock_armed = hit_at is not None
+        if hit_at is not None:
+            self._search_start_time = hit_at
+        self._search_time_limit = (
+            None if task is not None and task.ponder and hit_at is None
+            else time_limit
+        )
         self._last_time_check_time = self._search_start_time
 
         self.history_table.decay()
@@ -336,9 +353,10 @@ class UCIEngine:
         
         # Search implementation
         current_depth = 1
-        max_depth = depth_limit if depth_limit is not None else self.max_depth_limit if self.max_depth_limit is not None else 15
+        max_depth = depth_limit if depth_limit is not None else self.max_depth_limit if self.max_depth_limit is not None else self.MAX_LMR_DEPTH
         if infinite_search:
             max_depth = self.MAX_LMR_DEPTH
+        max_depth = min(max_depth, self.MAX_LMR_DEPTH)
         
         best_move_so_far = None
         best_value_so_far = -MATE_SCORE
@@ -360,8 +378,16 @@ class UCIEngine:
                 best_value_so_far = value
 
                 # Send info for current depth
-                elapsed = time.monotonic() - self._search_start_time
-                self._uci_print(f"info depth {current_depth} score cp {value} time {int(elapsed * 1000)} pv {move.uci()}", flush=True)
+                elapsed = time.monotonic() - self._search_info_start_time
+                if abs(value) > MATE_SCORE_THRESHOLD:
+                    # Mate scores encode the absolute board ply. UCI reports
+                    # signed moves to mate from the current search position.
+                    plies_to_mate = MATE_SCORE - abs(value) - board.ply()
+                    moves_to_mate = (plies_to_mate + 1) // 2
+                    score = f"mate {moves_to_mate if value > 0 else -moves_to_mate}"
+                else:
+                    score = f"cp {value}"
+                self._uci_print(f"info depth {current_depth} score {score} time {int(elapsed * 1000)} pv {move.uci()}", flush=True)
 
             if self.stop_flag:
                 break
@@ -372,7 +398,7 @@ class UCIEngine:
 
     def run(self) -> None:
         """Main loop to read and process UCI commands."""
-        self._uci_print("StockConda v0.2.3.5.dev1 by Real", flush=True)
+        self._uci_print("StockConda v0.2.3.5.dev2 by Real", flush=True)
         try:
             while True:
                 line = sys.stdin.readline()
@@ -403,6 +429,8 @@ class UCIEngine:
                     self.handle_go(parts[1:])
                 elif command == "stop":
                     self.handle_stop()
+                elif command == "ponderhit":
+                    self.handle_ponderhit()
                 elif command == "quit":
                     self.handle_quit()
                     break # Exit the loop
@@ -414,12 +442,12 @@ class UCIEngine:
     def handle_uci(self) -> None:
         if DEBUG:
             self._uci_print("info debug: handling uci command", flush=True)
-        self._uci_print("id name StockConda v0.2.3.5.dev1 by Real", flush=True)
+        self._uci_print("id name StockConda v0.2.3.5.dev2 by Real", flush=True)
         self._uci_print("id author ReallyNot Sure", flush=True)
         self._uci_print("option name Hash type spin default 16 min 1 max 65536", flush=True)  # Hash size in MB
         self._uci_print("option name Book type check default false", flush=True)
-        self._uci_print(f"option name MaxDepth type spin default 5 min 1 max {self.MAX_LMR_DEPTH}", flush=True)  # Maximum search depth for performance stability
-        self._uci_print("option name EvalBitboards type check default false", flush=True)  # Enable fast bitboard eval path
+        self._uci_print("option name Ponder type check default false", flush=True)
+        self._uci_print(f"option name MaxDepth type spin default {self.MAX_LMR_DEPTH} min 1 max {self.MAX_LMR_DEPTH}", flush=True)
         self._uci_print("uciok", flush=True)
         if DEBUG:
             self._uci_print("info debug: uciok sent", flush=True)
@@ -459,6 +487,9 @@ class UCIEngine:
                             self._uci_print("info string Opening book enabled", flush=True)
                 else:
                     self._uci_print("info string Opening book disabled", flush=True)
+            elif option_name == "Ponder":
+                self.ponder_enabled = option_value.lower() in ("true", "1", "yes")
+                self._uci_print(f"info string Ponder {'enabled' if self.ponder_enabled else 'disabled'}", flush=True)
             elif option_name == "MaxDepth":
                 try:
                     depth = int(option_value)
@@ -469,9 +500,6 @@ class UCIEngine:
                         self._uci_print(f"info string Invalid max depth: {option_value} (must be 1-{self.MAX_LMR_DEPTH})", flush=True)
                 except ValueError:
                     self._uci_print(f"info string Invalid max depth: {option_value}", flush=True)
-            elif option_name == "EvalBitboards":
-                self.use_bitboard_eval = option_value.lower() in ("true", "1", "yes")
-                self._uci_print(f"info string Bitboard evaluation {'enabled' if self.use_bitboard_eval else 'disabled'} (note: requires incremental SearchState updates)", flush=True)
             else:
                 self._uci_print(f"info string Unknown option: {option_name}", flush=True)
         else:
@@ -585,6 +613,9 @@ class UCIEngine:
                 elif params[i] == 'infinite':
                     param_dict['infinite'] = True
                     i += 1
+                elif params[i] == 'ponder':
+                    param_dict['ponder'] = True
+                    i += 1
                 else:
                     i += 1  # skip unknown parameters
             except (IndexError, ValueError):
@@ -595,6 +626,7 @@ class UCIEngine:
         time_limit: float | None = None
         depth_limit: int | None = None
         infinite_search = False
+        ponder_search = bool(param_dict.get('ponder', False))
 
         if 'depth' in param_dict:
             depth_limit = param_dict['depth']
@@ -639,7 +671,8 @@ class UCIEngine:
         # the mutable board nor its mutable Move objects cross thread ownership.
         self._search_worker.submit(
             self.board.root().fen(en_passant='fen'), time_limit, depth_limit, infinite_search,
-            moves=tuple(move.uci() for move in self.board.move_stack))
+            moves=tuple(move.uci() for move in self.board.move_stack),
+            ponder=ponder_search)
 
     def _run_search_and_report_bestmove(
         self, time_limit: float | None, depth_limit: int | None,
@@ -648,8 +681,10 @@ class UCIEngine:
         """Prepare a legal result before the one terminal write for this task."""
         root = _board_from_fen_moves(board_fen, moves)
         best_move = None
-        if (not infinite_search and self.use_opening_book
-                and self.opening_book is not None and not self.opening_book.exhausted):
+        task = self._active_task
+        if (not infinite_search and not (task is not None and task.ponder)
+                and self.use_opening_book and self.opening_book is not None
+                and not self.opening_book.exhausted):
             book_move = None
             try:
                 book_move = self.opening_book.get_move(root, temperature=1)
@@ -688,6 +723,8 @@ class UCIEngine:
             except Exception as exc:
                 self._uci_print(f"info string ponder unavailable: {exc}", flush=True)
         # An output failure is fatal to the controller; never attempt a second result.
+        if task is not None:
+            task.wait_for_release()
         self._uci_print(line, flush=True)
         self.best_move_found = best_move
 
@@ -783,7 +820,8 @@ class UCIEngine:
         self._search_time_limit = time_limit
         self._last_time_check_time = self._search_start_time
 
-        if self.opening_book is not None and not self.opening_book.exhausted and self.use_opening_book:
+        if (not infinite_search and self.opening_book is not None
+                and not self.opening_book.exhausted and self.use_opening_book):
             if book_move := self.opening_book.get_move(self.board, temperature = 1):
                 self._uci_print(f"info string book move {book_move.uci()}", flush=True)
                 self._uci_print(f"bestmove {book_move.uci()}", flush=True)
@@ -791,9 +829,10 @@ class UCIEngine:
         
         current_depth = 1
         # Use depth_limit from go command, or a default max if infinite
-        max_depth = depth_limit if depth_limit is not None else self.max_depth_limit if self.max_depth_limit is not None else 15 # Use a large number for infinite/no limit
+        max_depth = depth_limit if depth_limit is not None else self.max_depth_limit if self.max_depth_limit is not None else self.MAX_LMR_DEPTH
         if infinite_search:
             max_depth = self.MAX_LMR_DEPTH
+        max_depth = min(max_depth, self.MAX_LMR_DEPTH)
 
         self.history_table.decay()
         
@@ -1340,7 +1379,7 @@ class UCIEngine:
 
                     value = -child_value
 
-                    if alpha < value:
+                    if alpha < value and (reduction or beta > alpha + 1):
                         board.push(move)
                         try:
                             if child_context is None:
@@ -1549,6 +1588,17 @@ class UCIEngine:
         if self._cancel_requested():
             return True
 
+        task = getattr(self, '_active_task', None)
+        if task is not None and task.ponder and not self._ponder_clock_armed:
+            hit_at = task.hit_at
+            if hit_at is not None:
+                self._search_start_time = hit_at
+                self._search_time_limit = task.time_limit
+                self._last_time_check_time = hit_at
+                self._stop_check_counter = 0
+                self._stop_check_threshold = 1
+                self._ponder_clock_armed = True
+
         self._stop_check_counter += 1
 
         if self._stop_check_counter < self._stop_check_threshold:
@@ -1597,6 +1647,9 @@ class UCIEngine:
     def handle_stop(self) -> None:
         self._stop_search()
         self._uci_print("info string search stopped", flush=True)
+
+    def handle_ponderhit(self) -> None:
+        self._search_worker.ponderhit()
 
     def _shutdown(self) -> None:
         """Join the only worker before freeing native resources, exactly once."""

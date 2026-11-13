@@ -104,9 +104,19 @@ def copy_licenses(destination: Path, msvc_notices: Path) -> list[dict[str, objec
             raise SystemExit(f"Microsoft redistributable notice missing: {source}")
         shutil.copy2(source, destination / ("Microsoft-Visual-Studio-2022-" + name))
 
+    distributions = list(metadata.distributions())
+    licensed_installations = {
+        (distribution.metadata["Name"].lower(), distribution.version)
+        for distribution in distributions
+        if any(
+            file.name.lower().startswith(("license", "licence", "copying", "notice", "copyright"))
+            and distribution.locate_file(file).is_file()
+            for file in distribution.files or []
+        )
+    }
     inventory: list[dict[str, object]] = []
     missing: list[str] = []
-    for distribution in sorted(metadata.distributions(), key=lambda d: d.metadata["Name"].lower()):
+    for distribution in sorted(distributions, key=lambda d: d.metadata["Name"].lower()):
         name = distribution.metadata["Name"]
         version = distribution.version
         files = distribution.files or []
@@ -116,6 +126,10 @@ def copy_licenses(destination: Path, msvc_notices: Path) -> list[dict[str, objec
             and distribution.locate_file(file).is_file()
         ]
         if not license_files:
+            if (name.lower(), version) in licensed_installations:
+                # An editable install can expose both a licensed dist-info and
+                # an empty source-tree egg-info for the same distribution.
+                continue
             if name.lower() in BUILD_ONLY:
                 inventory.append({"name": name, "version": version, "build_only": True,
                                   "license_files": []})

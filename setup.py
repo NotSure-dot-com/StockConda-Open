@@ -60,7 +60,8 @@ extensions = [
 # Setup configuration
 setup(
     name="chess_engine",
-    version="0.2.3.5.dev1",
+    version="0.2.3.5.dev2",
+    package_data={"chess_engine": ["opening_book.pkl"]},
     ext_modules=cythonize(
         extensions,
         compiler_directives=compiler_directives,

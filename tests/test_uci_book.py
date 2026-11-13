@@ -2,11 +2,18 @@
 
 import sys
 import pickle
+from pathlib import Path
 
 import chess
 import pytest
 
 from uci_harness import UciSession
+
+
+def test_source_and_wheel_book_copies_match():
+    root = Path(__file__).resolve().parents[1]
+    assert (root / "opening_book.pkl").read_bytes() == (
+        root / "src" / "chess_engine" / "opening_book.pkl").read_bytes()
 
 
 def test_missing_bundled_book_does_not_load_cwd_pickle(tmp_path, monkeypatch):
@@ -23,6 +30,22 @@ def test_missing_bundled_book_does_not_load_cwd_pickle(tmp_path, monkeypatch):
     monkeypatch.setattr(opening_book, "_OPENING_BOOK_CACHE", None)
     monkeypatch.chdir(elsewhere)
     assert opening_book.load_opening_book() is None
+
+
+def test_installed_package_book_is_used_when_source_root_is_absent(tmp_path, monkeypatch):
+    from chess_engine import opening_book
+
+    package = tmp_path / "site-packages" / "chess_engine"
+    package.mkdir(parents=True)
+    (package / "opening_book.pkl").write_bytes(
+        pickle.dumps({"move_sequences": {(chess.Move.from_uci("d2d4"),): 1}})
+    )
+    monkeypatch.setattr(opening_book, "__file__", str(package / "opening_book.py"))
+    monkeypatch.setattr(opening_book, "_OPENING_BOOK_CACHE", None)
+    monkeypatch.chdir(tmp_path)
+    book = opening_book.load_opening_book()
+    assert book is not None
+    assert chess.Move.from_uci("d2d4") in book.first_moves
 
 
 def test_frozen_book_comes_from_executable_directory(tmp_path, monkeypatch):
@@ -181,6 +204,57 @@ def test_book_does_not_finish_infinite_search_before_stop():
             for _, channel, line in session.events[start:]
         ), session.transcript()
         session.stop()
+        session.finish()
+    finally:
+        print(session.transcript())
+        session.close()
+
+
+def test_direct_infinite_search_does_not_take_book_move(monkeypatch):
+    from chess_engine.stockconda import UCIEngine
+
+    engine = UCIEngine()
+    try:
+        class Book:
+            exhausted = False
+
+            def get_move(self, _board, temperature=1):
+                return chess.Move.from_uci("e2e4")
+
+        engine.use_opening_book = True
+        engine.opening_book = Book()
+        searched = []
+        move = chess.Move.from_uci("e2e4")
+
+        def search(_board, depth, _alpha, _beta, *_args, **_kwargs):
+            searched.append(depth)
+            return 0, move
+
+        monkeypatch.setattr(engine, "pvs_search", search)
+        monkeypatch.setattr(engine, "reconstruct_pv", lambda *_args, **_kwargs: [move])
+        engine.start_search(None, 1, True)
+        assert searched == list(range(1, 65))
+    finally:
+        engine.handle_quit()
+
+
+def test_book_does_not_short_circuit_ponder():
+    session = UciSession()
+    try:
+        session.fence()
+        start = session.send("setoption name Book value true")
+        session.wait(lambda line: "Opening book enabled" in line, start, 10)
+        session.fence()
+        board = chess.Board()
+        session.position(board)
+        start = session.go(board, "go ponder depth 1")
+        session.wait(lambda line: line.startswith("info depth 1 "), start, 5)
+        assert not any(
+            channel == "stdout" and line.startswith("info string book move ")
+            for _, channel, line in session.events[start:]
+        ), session.transcript()
+        session.send("ponderhit")
+        session.bestmove(start)
         session.finish()
     finally:
         print(session.transcript())
