@@ -1,6 +1,6 @@
 {
-  "source_commit": "c09a4736e57e2d71b679a69d4eb9ae43ef791531",
-  "source_tree": "947e413ea3cb005417480010b6667b70861c4a72",
+  "source_commit": "c60424830ec2c594ddbb01dc452c5c377f199957",
+  "source_tree": "2d36a235b13eabfc9e8bf4c4dcb4f74ae6554475",
   "integrated_private_commit": "7f4e35a816ddfffaf72d2386b6a6ec32215bf3ed",
   "public_base_commit": "904dbe8afbca639dc335cab6798e6c1d3da835ce",
   "file_count": 113,
@@ -227,8 +227,8 @@
     },
     {
       "path": "scripts/build_windows_onedir.py",
-      "bytes": 9414,
-      "sha256": "65b139d64bbb5f2c367bd505b6e08a9057a3014b8fd174e0060f761908e37762"
+      "bytes": 10093,
+      "sha256": "bde9ffe431d0cbfc3320dee71a8178c82fe5aaa98677c8f96e69daf85399851c"
     },
     {
       "path": "scripts/qsearch_rule_draw_benchmark.py",
